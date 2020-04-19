@@ -1,10 +1,10 @@
-""" Some toys around COVID-19.
+measure""" Some toys around COVID-19.
 
 # @Author: maurotoro <soyunkope>
 # @Date:   2020-04-05T23:28:45+01:00
 # @Email:  mauricio.toro@neuro.fchampalimaud.org
 # @Last modified by:   soyunkope
-# @Last modified time: 2020-04-18T01:01:12+01:00
+# @Last modified time: 2020-04-19T20:57:23+01:00
 # @Copyright: Now you owe me a beer, or two, I choose!
 
 Testing two examples, SEIR and SEIRC models,
@@ -12,6 +12,22 @@ Heavily based on
     https://github.com/coronafighter/coronaSEIR
 And
     https://hub.gke.mybinder.org/user/marcelloperathoner-covid-19-6lazscw9/notebooks/jupyter/seirc.ipynb
+
+The baisc idea is that we don`t have control on the incubation period, nor in
+the infection rate. We can only change how much interactions people have
+between each other. To model this, one can make diffferent betas for diferent
+time points.
+
+For example:
+    - If the goverment puts a quarantine 30 days after the first detected case.
+    - The quarantine lasts 30 days.
+    - After the quarantine people changed their behavior making it half the
+      contagious it was originally. New normality.
+
+    * Parameters:
+
+        days = [30, 30]  # 30 days after first case lockdown, for 30 days.
+        betas = [0.44, 0.165, 0.22]  # beta before lockdow, during and after.
 
 
 TODO/FIXME
@@ -44,9 +60,9 @@ def SEIR_ode(init, t, params):
     params : list
         Parameters for the model
             `alpha`: infection rate. Inverse of incubation period.
-            `betas`: Contact rates, for now use two, before and after lockdown.
+            `betas`: Contact rates * `contagiousness`.
             `gamma`: Infection rate. How long does infection lasts.
-            `days` : Times of beta changing meassures.
+            `days` : Times of beta changing measures.
                      The values are how much each beta lasts.
             `N`    : Total population.
 
@@ -58,7 +74,7 @@ def SEIR_ode(init, t, params):
     """
     # Parameters for the model
     alpha, betas, gamma, days, N = params
-    # differemt contact rates, lockdown meassures count!
+    # differemt contact rates, lockdown measures count!
     beta = get_beta(t, days, betas)
     # compartments
     S, E, I, R = init
@@ -82,11 +98,11 @@ def SEIRC_ode(init, t, params):
     params : list
         Parameters for the model
             `alpha`: infection rate. Inverse of incubation period.
-            `betas`: Contact rates, for now use two, before and after lockdown.
+            `betas`: Contact rates * `contagiousness`.
             `gamma`: Infection rate. How long does infection lasts.
             `c1`   : Ration of Infected that become critical.
             `c2`   : Time a critical patient usses a bed.
-            `days` : Times of beta changing meassures.
+            `days` : Times of beta changing measures.
                      The values are how much each beta lasts.
             `N`    : Total population.
 
@@ -98,7 +114,7 @@ def SEIRC_ode(init, t, params):
     """
     # Parameters for the model
     alpha, betas, gamma, c1, c2, days, N = params
-    # differemt contact rates, lockdown meassures count!
+    # differemt contact rates, lockdown measures count!
     beta = get_beta(t, days, betas)
     # compartments
     S, E, I, R, C = init
@@ -156,10 +172,10 @@ def get_beta(t, days, betas):
     t : float
         Time stamp of the current moment.
     days : list(int, ..., int)
-        Days when meassure changing betas happened. Each one is with respect
+        Days when measure changing betas happened. Each one is with respect
         to the previous event.
     betas : list(float, ..., float)
-        Changes in the conctats between individuals at each meassure.
+        Changes in the conctats between individuals at each measure.
         Must have one more than the days, the original contact rate.
 
     Returns
