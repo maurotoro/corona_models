@@ -1,5 +1,5 @@
 # corona_models
-Simplistic models of COVID-19, has a SEIR and SEIRC models.
+Simplistic models of COVID-19, has a SIR, SEIR and SEIRC models.
 
 The toys allow to model social distancing measures, to get an idea of how
 it this could affect the outcomes of the epidemic.

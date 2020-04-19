@@ -4,10 +4,10 @@ measure""" Some toys around COVID-19.
 # @Date:   2020-04-05T23:28:45+01:00
 # @Email:  mauricio.toro@neuro.fchampalimaud.org
 # @Last modified by:   soyunkope
-# @Last modified time: 2020-04-19T20:57:23+01:00
+# @Last modified time: 2020-04-19T21:18:23+01:00
 # @Copyright: Now you owe me a beer, or two, I choose!
 
-Testing two examples, SEIR and SEIRC models,
+Testing examples, SIR, SEIR and SEIRC models,
 Heavily based on
     https://github.com/coronafighter/coronaSEIR
 And
@@ -46,6 +46,42 @@ from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 from datetime import datetime
 
 plt.ion()
+
+
+def SIR_model(init, t, params):
+    """S(usceptible)I(nfected)R(recovered) model.
+
+    Parameters
+    ----------
+    t : float
+        Time at the current moment of the evolution of the system.
+    init : list
+        State of each compartment at time zero.
+    params : list
+        Parameters for the model
+            `betas`: Contact rates * `contagiousness`.
+            `gamma`: Infection rate. How long does infection lasts.
+            `days` : Times of beta changing measures.
+                     The values are how much each beta lasts.
+            `N`    : Total population.
+
+    Returns
+    -------
+    dS, dI, dR
+        Rates of change per compartent by time step.
+
+    """
+    # Parameters for the model
+    betas, gamma, days, N = params
+    # differemt contact rates, lockdown measures count!
+    beta = get_beta(t, days, betas)
+    # compartments
+    S, I, R = init
+    # ODEs for the model
+    dS = - beta * S * I / N
+    dI = beta * I * S / N - gamma * I
+    dR = gamma * I
+    return dS, dI, dR
 
 
 def SEIR_ode(init, t, params):
@@ -150,6 +186,9 @@ def model_solver(model_ode, init, params, start_date, labels='SEIRC'):
         Results of the integration of the model as a DataFrame.
 
     """
+    # SIR model has less labels...
+    if len(params) == 4:
+        labels = 'SIR'
     t = np.linspace(0, 365, num=365*10 + 1)
     start_date_dt = datetime(*start_date).strftime('%Y/%m/%d')
     nxt_year = start_date[0] + 1
@@ -222,12 +261,14 @@ if __name__ == '__main__':
     # exposed at initial time step
     E0 = 1
     # initial values for the models
-    init_SEIRC = [N-E0, E0, 0, 0, 0]
+    init_SIR = [N-E0, E0, 0]
     init_SEIR = [N-E0, E0, 0, 0]
+    init_SEIRC = [N-E0, E0, 0, 0, 0]
     # Params definitions
-    params_SEIRC = [alpha, betas, gamma, c1, c2, days, N]
+    params_SIR = [betas_nolrn, gamma, days, N]
     params_SEIR_nl = [alpha, betas_nolrn, gamma, days, N]
     params_SEIR_l = [alpha, betas_learn, gamma, days, N]
+    params_SEIRC = [alpha, betas, gamma, c1, c2, days, N]
 
     # solve ODE for SEIR model where the population changes their bhv or not
     df_SEIR_nl = model_solver(SEIR_ode, init_SEIR, params_SEIR_nl, [2020, 3, 1])
