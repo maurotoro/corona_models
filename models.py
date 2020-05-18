@@ -1,10 +1,10 @@
-measure""" Some toys around COVID-19.
+""" Some toys around COVID-19.
 
 # @Author: maurotoro <soyunkope>
 # @Date:   2020-04-05T23:28:45+01:00
 # @Email:  mauricio.toro@neuro.fchampalimaud.org
 # @Last modified by:   soyunkope
-# @Last modified time: 2020-04-19T21:18:23+01:00
+# @Last modified time: 2020-05-18T11:43:39+01:00
 # @Copyright: Now you owe me a beer, or two, I choose!
 
 Testing examples, SIR, SEIR and SEIRC models,
